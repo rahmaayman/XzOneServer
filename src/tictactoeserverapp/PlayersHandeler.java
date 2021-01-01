@@ -48,7 +48,7 @@ public class PlayersHandeler implements Runnable {
     public PlayersHandeler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         playerDao = new PlayerDao();
-        pList = playerDao.selectallPlayers();
+        pList = playerDao.selectAllPlayers(0);
         try {
             objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
@@ -73,13 +73,13 @@ public class PlayersHandeler implements Runnable {
                     registration();
                     name = informatin.get(1);
                     sendMessageToPlayer(message);
-                    pList = playerDao.selectallPlayers();
+                    pList = playerDao.selectAllPlayers(0);
                 } else if (informatin.get(0).equals(Constants.WANT_TO_LOGIN)) {
                     System.out.println(informatin.get(0) + "  " + informatin.get(1) + "   " + informatin.get(2));
                     loginRequest();
                     name = informatin.get(1);
                     sendMessageToPlayer(message);
-                    pList = playerDao.selectallPlayers();
+                    pList = playerDao.selectAllPlayers(0);
                 }
 
             } catch (EOFException s) {
@@ -160,12 +160,12 @@ public class PlayersHandeler implements Runnable {
             message.add(Constants.LOGIN_FAILURE);
         }
         System.out.println("after login");
-        pList = playerDao.selectallPlayers();
+        pList = playerDao.selectAllPlayers(0);
     }
 
     private boolean isLogged() {
         boolean isloged = false;
-        pList = playerDao.selectallPlayers();
+        pList = playerDao.selectAllPlayers(0);
         for (int i = 0; i < pList.size(); i++) {
             if (pList.get(i).getName().equals(informatin.get(1)) && pList.get(i).getPassword().equals(informatin.get(2))) {
                 isloged = true;
