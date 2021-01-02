@@ -35,13 +35,13 @@ public class PlayersHandeler implements Runnable {
     private String receivingPacket;
     private int status;
     ArrayList<String> message;
-    ArrayList<String> informatin;
+    ArrayList<String> information;
     String name;
     Socket clientSocket;
     public static Thread th;
     boolean flag = true;
-
-    static Set<PlayersHandeler> playersSocket = new HashSet<PlayersHandeler>();
+    PlayersHandeler opponent;
+    static Set<PlayersHandeler> playersList = new HashSet<PlayersHandeler>();
     PlayerDao playerDao;
     ArrayList<Player> pList;
 
@@ -49,10 +49,12 @@ public class PlayersHandeler implements Runnable {
         this.clientSocket = clientSocket;
         playerDao = new PlayerDao();
         pList = playerDao.selectAllPlayers(0);
+        opponent = null;
+        name="guest";
         try {
             objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
-            playersSocket.add(this);
+            playersList.add(this);
             th = new Thread(this);
             th.start();
 
@@ -67,19 +69,27 @@ public class PlayersHandeler implements Runnable {
             try {
 //                System.out.println("bbbb");
 //                System.out.println("vvvvv");
-                informatin = (ArrayList<String>) objectInputStream.readObject();
-                if (informatin.get(0).equals(Constants.WANT_TO_REGISTER)) {
-                    System.out.println(informatin.get(0) + "  " + informatin.get(1) + "   " + informatin.get(2));
+                information = (ArrayList<String>) objectInputStream.readObject();
+                if (information.get(0).equals(Constants.WANT_TO_REGISTER)) {
+                    System.out.println(information.get(0) + "  " + information.get(1) + "   " + information.get(2));
                     registration();
-                    name = informatin.get(1);
+                    name = information.get(1);
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
-                } else if (informatin.get(0).equals(Constants.WANT_TO_LOGIN)) {
-                    System.out.println(informatin.get(0) + "  " + informatin.get(1) + "   " + informatin.get(2));
+                } else if (information.get(0).equals(Constants.WANT_TO_LOGIN)) {
+                    System.out.println(information.get(0) + "  " + information.get(1) + "   " + information.get(2));
                     loginRequest();
-                    name = informatin.get(1);
+                    name = information.get(1);
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
+                } else if(information.get(0).equals(Constants.WANT_TO_PLAY)){
+                    message = new ArrayList<String>();
+                    String opponentName = information.get(1);
+                    String playerName = information.get(2);
+                    PlayersHandeler attachedOpponent = attachOpponent(opponentName);
+                    message.add(Constants.WANT_TO_PLAY);
+                    message.add(playerName);
+                    sendPlayingRequest(message, attachedOpponent);
                 }
 
             } catch (EOFException s) {
@@ -88,8 +98,8 @@ public class PlayersHandeler implements Runnable {
                     PlayersHandeler.this.objectInputStream.close();
                     PlayersHandeler.this.objectOutputStream.close();
                     playerDao.UpdatePlayerStatus(name, 0);
-                    playersSocket.remove(PlayersHandeler.this);
-                    playersSocket.remove(PlayersHandeler.this);
+                    playersList.remove(PlayersHandeler.this);
+                    playersList.remove(PlayersHandeler.this);
                     th.stop();
                     break;
                 } catch (IOException ex) {
@@ -98,7 +108,7 @@ public class PlayersHandeler implements Runnable {
 
             } catch (SocketException ex) {
 
-                playersSocket.remove(PlayersHandeler.this);
+                playersList.remove(PlayersHandeler.this);
 //                    objectOutputStream.close();
 //                    objectInputStream.close();
 //                    clientSocket.close();
@@ -118,14 +128,14 @@ public class PlayersHandeler implements Runnable {
         message.add(Constants.REGISTER);
         boolean userNameUsed = false;
         for (int i = 0; i < pList.size(); i++) {
-            if (informatin.get(1).equals(pList.get(i).getName())) {
+            if (information.get(1).equals(pList.get(i).getName())) {
                 userNameUsed = true;
                 message.add(Constants.DUPPLICATED_NAME);
                 break;
             }
         }
         if (!userNameUsed) {
-            Player p = new Player(informatin.get(1), informatin.get(2), 0, 1);
+            Player p = new Player(information.get(1), information.get(2), 0, 1);
             playerDao.insertPlayer(p);
             message.add(Constants.YOU_ARA_REGISTER);
         }
@@ -136,15 +146,9 @@ public class PlayersHandeler implements Runnable {
         System.out.println("in the method:" + message);
 
         try {
-            for (PlayersHandeler playersHandler : playersSocket) {
-                System.out.println("player" + playersHandler.name);
-
-                if (name.equals(playersHandler.name)) {
-                    System.out.println("if" + playersHandler.name);
-                    playersHandler.objectOutputStream.writeObject(message);
-                    break;
-                }
-            }
+           
+                    this.objectOutputStream.writeObject(message);
+           
         } catch (IOException ex) {
             Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -167,12 +171,40 @@ public class PlayersHandeler implements Runnable {
         boolean isloged = false;
         pList = playerDao.selectAllPlayers(0);
         for (int i = 0; i < pList.size(); i++) {
-            if (pList.get(i).getName().equals(informatin.get(1)) && pList.get(i).getPassword().equals(informatin.get(2))) {
+            if (pList.get(i).getName().equals(information.get(1)) && pList.get(i).getPassword().equals(information.get(2))) {
                 isloged = true;
                 playerDao.UpdatePlayerStatus(pList.get(i).getName(), 1);
                 break;
             }
         }
         return isloged;
+    }
+    
+    private PlayersHandeler attachOpponent(String opponentName){
+        
+        PlayersHandeler assignedPlayer = null;
+        PlayersHandeler localOpponent = null;
+        
+        for(PlayersHandeler player : playersList){
+            
+            if(player.name.equals(information.get(2)))
+                assignedPlayer = player;
+            else if(player.name.equals(opponentName))
+                localOpponent = player; 
+        }
+      
+        assignedPlayer.opponent = localOpponent;
+        return localOpponent;
+  
+    }
+    
+    private void sendPlayingRequest(ArrayList<String>message, PlayersHandeler attachedOpponent){
+        System.out.println("Hello from send playing request from server and opponent name is " + opponent.name);
+        try {
+            attachedOpponent.objectOutputStream.writeObject(message);
+        } catch (IOException ex) {
+            Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
 }

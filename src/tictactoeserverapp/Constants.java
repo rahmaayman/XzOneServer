@@ -17,5 +17,8 @@ public class Constants {
     public static final String YOU_ARA_REGISTER="you are registerd";
     public static final String LOGIN="login";
     public static final String  YOU_LOGED_IN="you loged in";
+    public static final String WANT_TO_PLAY="want to play request";
+    public static final String ACCEPT_PLAYING_REQUEST="you request accepted";
+    public static final String REJECT_PLAYING_REQUEST="you request rejected";
     public static final String LOGIN_FAILURE="your userName or password is wrong or you are aleady loged in from another device";
 }
