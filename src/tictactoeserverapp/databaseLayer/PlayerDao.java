@@ -75,25 +75,45 @@ public class PlayerDao {
         }
     }
 
-//    public ArrayList<Player> selectAllPlayers() {
-//        try {
-//            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-//            String queryString = new String("SELECT * FROM PLAYER");
-//            rs = stmt.executeQuery(queryString);
-//            while (rs.next()) {
-//                String name = rs.getString(1);
-//                String password = rs.getString(2);
-//                int score = rs.getInt(3);
-//                int status = rs.getInt(4);
-//
-//                pList.add(new Player(name, password, score, status));
-//            }
-//
-//        } catch (SQLException ex) {
-//            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return pList;
-//    }
+    public ArrayList<Player> selectAllPlayers() {
+        try {
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String queryString = new String("SELECT * FROM PLAYER");
+            rs = stmt.executeQuery(queryString);
+            while (rs.next()) {
+                String name = rs.getString(1);
+                String password = rs.getString(2);
+                int score = rs.getInt(3);
+                int status = rs.getInt(4);
+
+                pList.add(new Player(name, password, score, status));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return pList;
+    }
+    public ArrayList<Player> selectAvailablePlayers() {
+        try {
+            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String queryString = new String("SELECT * FROM PLAYER WHERE STATUS=1");
+            rs = stmt.executeQuery(queryString);
+            apList=new ArrayList<>();
+            while (rs.next()) {
+                String name = rs.getString(1);
+                String password = rs.getString(2);
+                int score = rs.getInt(3);
+                int status = rs.getInt(4);
+
+                apList.add(new Player(name, password, score, status));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return apList;
+    }
     public ArrayList<Player> selectAllPlayers(int pStatus) {
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);

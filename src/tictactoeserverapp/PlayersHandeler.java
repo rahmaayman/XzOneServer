@@ -44,6 +44,7 @@ public class PlayersHandeler implements Runnable {
     static Set<PlayersHandeler> playersSocket = new HashSet<PlayersHandeler>();
     PlayerDao playerDao;
     ArrayList<Player> pList;
+    ArrayList<Player> apList;
 
     public PlayersHandeler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -80,6 +81,24 @@ public class PlayersHandeler implements Runnable {
                     name = informatin.get(1);
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
+                } else if ((informatin.get(0).equals(Constants.GET_AVAILABLE_PLAYERS))) {
+                    message=new ArrayList<>();
+                    message.add(Constants.AVAILABLE_PLAYERS);
+                    apList=new ArrayList<Player>();
+                    System.out.println("aP " + apList);
+                    apList=playerDao.selectAllPlayers();
+                    System.out.println("aP " + apList);
+                    for(int i=0;i<apList.size();i++){
+                       if(apList.get(i).getStatus()==1&&!apList.get(i).getName().equals(name)){
+                            message.add(apList.get(i).getName());
+                       }
+                    }
+                    System.out.println("aP " + apList);
+                    
+                    sendMessageToPlayer(message);
+                    System.out.println("aP is send to client");
+                    apList.clear();
+                    System.out.println("aP " + apList);
                 }
 
             } catch (EOFException s) {
