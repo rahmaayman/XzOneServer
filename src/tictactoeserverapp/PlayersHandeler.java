@@ -82,23 +82,41 @@ public class PlayersHandeler implements Runnable {
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
                 } else if ((informatin.get(0).equals(Constants.GET_AVAILABLE_PLAYERS))) {
-                    message=new ArrayList<>();
+                    message = new ArrayList<>();
                     message.add(Constants.AVAILABLE_PLAYERS);
-                    apList=new ArrayList<Player>();
+                    apList = new ArrayList<Player>();
                     System.out.println("aP " + apList);
-                    apList=playerDao.selectAllPlayers();
+                    apList = playerDao.selectAllPlayers();
                     System.out.println("aP " + apList);
-                    for(int i=0;i<apList.size();i++){
-                       if(apList.get(i).getStatus()==1&&!apList.get(i).getName().equals(name)){
+                    for (int i = 0; i < apList.size(); i++) {
+                        if (apList.get(i).getStatus() == 1 && !apList.get(i).getName().equals(name)) {
                             message.add(apList.get(i).getName());
-                       }
+                        }
                     }
                     System.out.println("aP " + apList);
-                    
+
                     sendMessageToPlayer(message);
                     System.out.println("aP is send to client");
                     apList.clear();
                     System.out.println("aP " + apList);
+                } else if (informatin.get(0).equals(Constants.WANT_TO_PLAY)) {
+                    String opponentName = informatin.get(1);
+                    String playerName = this.name;
+
+                    sendMessageToOpponent(opponentName, playerName, Constants.WANT_TO_PLAY);
+                    System.out.println("send request " + opponentName + " " + playerName);
+                } else if (informatin.get(0).equals(Constants.ACCEPT_PLAYING_REQUEST)) {
+                    String opponentName = informatin.get(2);
+                    String playerName = informatin.get(1);
+                    playerDao.UpdatePlayerStatus(playerName, 2);
+                    playerDao.UpdatePlayerStatus(opponentName, 2);
+                    sendMessageToOpponent(opponentName, playerName, Constants.ACCEPT_PLAYING_REQUEST);
+                    System.out.println("send accept " + opponentName + " " + playerName);
+                } else if (informatin.get(0).equals(Constants.REJECT_PLAYING_REQUEST)) {
+                    String opponentName = informatin.get(2);
+                    String playerName = informatin.get(1);
+                    sendMessageToOpponent(opponentName, playerName, Constants.REJECT_PLAYING_REQUEST);
+                    System.out.println("send reject " + opponentName + " " + playerName);
                 }
 
             } catch (EOFException s) {
@@ -161,11 +179,31 @@ public class PlayersHandeler implements Runnable {
                 if (name.equals(playersHandler.name)) {
                     System.out.println("if" + playersHandler.name);
                     playersHandler.objectOutputStream.writeObject(message);
+                    playersHandler.objectOutputStream.flush();
                     break;
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void sendMessageToOpponent(String opponentName, String playerName, String msg) {
+        ArrayList<String> message = new ArrayList<>();
+        message.add(msg);
+        message.add(opponentName);
+        message.add(playerName);
+        for (PlayersHandeler playersHandler : playersSocket) {
+            if (opponentName.equals(playersHandler.name)) {
+
+                try {
+                    playersHandler.objectOutputStream.writeObject(message);
+                    playersHandler.objectOutputStream.flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
+            }
         }
     }
 
@@ -194,4 +232,5 @@ public class PlayersHandeler implements Runnable {
         }
         return isloged;
     }
+
 }

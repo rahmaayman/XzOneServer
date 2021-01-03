@@ -20,4 +20,7 @@ public class Constants {
     public static final String LOGIN_FAILURE="your userName or password is wrong or you are aleady loged in from another device";
     public static final String GET_AVAILABLE_PLAYERS="get available players";
     public static final String AVAILABLE_PLAYERS="available players";
+    public static final String WANT_TO_PLAY="want to play request";
+    public static final String ACCEPT_PLAYING_REQUEST="you request accepted";
+    public static final String REJECT_PLAYING_REQUEST="you request rejected";
 }
