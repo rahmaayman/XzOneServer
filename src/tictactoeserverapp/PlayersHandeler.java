@@ -42,6 +42,8 @@ public class PlayersHandeler implements Runnable {
     boolean flag = true;
 
     static Set<PlayersHandeler> playersSocket = new HashSet<PlayersHandeler>();
+    static Set<Match> currentMatches = new HashSet<Match>();
+    
     PlayerDao playerDao;
     ArrayList<Player> pList;
     ArrayList<Player> apList;
@@ -108,6 +110,7 @@ public class PlayersHandeler implements Runnable {
                 } else if (informatin.get(0).equals(Constants.ACCEPT_PLAYING_REQUEST)) {
                     String opponentName = informatin.get(2);
                     String playerName = informatin.get(1);
+                    createMatch(playerName, opponentName);
                     playerDao.UpdatePlayerStatus(playerName, 2);
                     playerDao.UpdatePlayerStatus(opponentName, 2);
                     sendMessageToOpponent(opponentName, playerName, Constants.ACCEPT_PLAYING_REQUEST);
@@ -231,6 +234,22 @@ public class PlayersHandeler implements Runnable {
             }
         }
         return isloged;
+    }
+    
+    private void createMatch(String playerName, String opponentName){
+        PlayersHandeler playerOne = null;
+        PlayersHandeler playerTwo = null;
+        for(PlayersHandeler player : playersSocket){
+            if(player.name.equals(playerName))
+                playerOne = player;
+            else if(player.name.equals(opponentName))
+                playerTwo = player;
+            
+        }
+        System.out.println("player1 "+playerOne.name);
+        System.out.println("player2 "+playerTwo.name);
+        Match match = new Match(playerOne, playerTwo);
+        currentMatches.add(match);
     }
 
 }
