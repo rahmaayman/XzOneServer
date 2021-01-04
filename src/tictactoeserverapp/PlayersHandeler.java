@@ -105,22 +105,24 @@ public class PlayersHandeler implements Runnable {
                     String opponentName = information.get(1);
                     String playerName = this.name;
 
-                    sendMessageToOpponent(opponentName, playerName, Constants.WANT_TO_PLAY);
+                    connectTwoPlayers(opponentName, playerName, Constants.WANT_TO_PLAY);
                     System.out.println("send request " + opponentName + " " + playerName);
 
                 } else if (information.get(0).equals(Constants.ACCEPT_PLAYING_REQUEST)) {
-                    String opponentName = information.get(2);
-                    String playerName = information.get(1);
+                    String playerName = information.get(2);
+                    String opponentName = information.get(1);
                     createMatch(playerName, opponentName);
+                    
                     playerDao.UpdatePlayerStatus(playerName, 2);
                     playerDao.UpdatePlayerStatus(opponentName, 2);
-                    sendMessageToOpponent(opponentName, playerName, Constants.ACCEPT_PLAYING_REQUEST);
+                    
+                    sendMsgTo(playerName, opponentName, Constants.ACCEPT_PLAYING_REQUEST);
                     System.out.println("send accept " + opponentName + " " + playerName);
 
                 } else if (information.get(0).equals(Constants.REJECT_PLAYING_REQUEST)) {
                     String opponentName = information.get(2);
                     String playerName = information.get(1);
-                    sendMessageToOpponent(opponentName, playerName, Constants.REJECT_PLAYING_REQUEST);
+                    connectTwoPlayers(opponentName, playerName, Constants.REJECT_PLAYING_REQUEST);
                     System.out.println("send reject " + opponentName + " " + playerName);
 
                 } else if (information.get(0).equals(Constants.OPEN_GAME_INFORM)) {
@@ -201,8 +203,52 @@ public class PlayersHandeler implements Runnable {
             Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    private void sendMsgTo(String opponentName, String playerName, String msgType){
+        ArrayList<String> message = new ArrayList<>();
+        message.add(msgType);
+        message.add(opponentName);
+        message.add(playerName);
+        message.add(Constants.GO_AHEAD);
+        message.add(Constants.X_PLAY_PIECE);
+        
+        for (PlayersHandeler playersHandler : playersSocket) {
+            if (opponentName.equals(playersHandler.name)) {
 
-    private void sendMessageToOpponent(String opponentName, String playerName, String msg) {
+                try {
+                    playersHandler.objectOutputStream.writeObject(message);
+                    playersHandler.objectOutputStream.flush();
+                } catch (IOException ex) {
+                    Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
+            }
+        }
+        
+    }
+    private void sendOpenInformToOponnent(String playerOneName, String playerTwoName) {
+        ArrayList<String> openGamePacket = new ArrayList<String>();
+        openGamePacket.add(Constants.OPEN_GAME_INFORM);
+        openGamePacket.add(playerTwoName);
+        openGamePacket.add(playerOneName);
+        openGamePacket.add(Constants.HOLD_ON);
+        openGamePacket.add(Constants.O_PLAY_PIECE);
+        PlayersHandeler informedPlayer = null;
+        for (PlayersHandeler player : playersSocket) {
+            if (player.name.equals(playerOneName)) {
+                informedPlayer = player;
+            }
+        }
+
+        try {
+            informedPlayer.objectOutputStream.writeObject(openGamePacket);
+        } catch (IOException ex) {
+            Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void connectTwoPlayers(String opponentName, String playerName, String msg) {
         ArrayList<String> message = new ArrayList<>();
         message.add(msg);
         message.add(opponentName);
@@ -267,23 +313,6 @@ public class PlayersHandeler implements Runnable {
         currentMatches.add(match);
     }
 
-    private void sendOpenInformToOponnent(String playerOneName, String playerTwoName) {
-        ArrayList<String> openGamePacket = new ArrayList<String>();
-        openGamePacket.add(Constants.OPEN_GAME_INFORM);
-        openGamePacket.add(playerTwoName);
-        PlayersHandeler informedPlayer = null;
-        for (PlayersHandeler player : playersSocket) {
-            if (player.name.equals(playerOneName)) {
-                informedPlayer = player;
-            }
-        }
-
-        try {
-            informedPlayer.objectOutputStream.writeObject(openGamePacket);
-        } catch (IOException ex) {
-            Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
+    
 
 }
