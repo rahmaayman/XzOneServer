@@ -5,8 +5,8 @@
         <group>
             <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/tictactoeserverapp/databaseLayer/PlayerDao.java</file>
             <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/tictactoeserverapp/TicTacToeServerApp.java</file>
-            <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/tictactoeserverapp/PlayersHandeler.java</file>
-            <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/tictactoeserverapp/Constants.java</file>
+            <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/controllers/ServerStatsController.java</file>
+            <file>file:/C:/Users/Rahma%20Ayman/Documents/NetBeansProjects/TicTacToeServerApp/src/controllers/DashBoardController.java</file>
         </group>
     </open-files>
 </project-private>

@@ -5,9 +5,11 @@
  */
 package tictactoeserverapp.databaseLayer;
 
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLNonTransientConnectionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.derby.jdbc.ClientDriver;

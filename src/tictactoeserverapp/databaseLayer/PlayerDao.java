@@ -74,29 +74,46 @@ public class PlayerDao {
             Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public int getScore(String userName){
+
+    public int getScore(String userName) {
         ResultSet rs = null;
         int score = -1;
         try {
-            PreparedStatement ps =con.prepareStatement("SELECT SCORE FROM PLAYER WHERE NAME=?");
+            PreparedStatement ps = con.prepareStatement("SELECT SCORE FROM PLAYER WHERE NAME=?");
             ps.setString(1, userName);
             rs = ps.executeQuery();
         } catch (SQLException ex) {
             Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
+
         try {
-            if(rs.next()){
+            if (rs.next()) {
                 System.out.println(" rs has next");
-                score =  rs.getInt("SCORE");
+                score = rs.getInt("SCORE");
             }
-                
+
         } catch (SQLException ex) {
             Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return score;
+    }
+
+    public int getPlayersCount(int status) {
+        int count = -1;
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = con.prepareStatement("SELECT COUNT(STATUS)FROM PLAYER WHERE STATUS=?");
+            ps.setInt(1, status);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                count = Integer.parseInt(rs.getString(1));
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
     }
 
     public ArrayList<Player> selectAllPlayers() {
@@ -118,12 +135,13 @@ public class PlayerDao {
         }
         return pList;
     }
+
     public ArrayList<Player> selectAvailablePlayers() {
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             String queryString = new String("SELECT * FROM PLAYER WHERE STATUS=1");
             rs = stmt.executeQuery(queryString);
-            apList=new ArrayList<>();
+            apList = new ArrayList<>();
             while (rs.next()) {
                 String name = rs.getString(1);
                 String password = rs.getString(2);
@@ -138,10 +156,11 @@ public class PlayerDao {
         }
         return apList;
     }
+
     public ArrayList<Player> selectAllPlayers(int pStatus) {
         try {
             stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            String queryString = new String("SELECT * FROM PLAYER WHERE STATUS="+Integer.toString(pStatus));
+            String queryString = new String("SELECT * FROM PLAYER WHERE STATUS=" + Integer.toString(pStatus));
             rs = stmt.executeQuery(queryString);
             while (rs.next()) {
                 String name = rs.getString(1);
@@ -157,6 +176,53 @@ public class PlayerDao {
         }
         return apList;
     }
-    
+
+//    public int getOfflinePlayersCount() {
+//        int count = -1;
+//        try {
+//            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//            String queryString = new String("SELECT COUNT(STATUS)FROM PLAYER WHERE STATUS=0");
+//            rs = stmt.executeQuery(queryString);
+//            if (rs.next()) {
+//                count = Integer.parseInt(rs.getString(1));
+//            }
+//
+//        } catch (SQLException ex) {
+//            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return count;
+//    }
+//
+//    public int getOnlinePlayersCount() {
+//        int count = -1;
+//        try {
+//            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//            String queryString = new String("SELECT COUNT(STATUS)FROM PLAYER WHERE STATUS=1");
+//            rs = stmt.executeQuery(queryString);
+//            if (rs.next()) {
+//                count = Integer.parseInt(rs.getString(1));
+//            }
+//
+//        } catch (SQLException ex) {
+//            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return count;
+//    }
+//
+//    public int getBusyPlayersCount() {
+//        int count = -1;
+//        try {
+//            stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+//            String queryString = new String("SELECT COUNT(STATUS)FROM PLAYER WHERE STATUS=2");
+//            rs = stmt.executeQuery(queryString);
+//            if (rs.next()) {
+//                count = Integer.parseInt(rs.getString(1));
+//            }
+//
+//        } catch (SQLException ex) {
+//            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return count;
+//    }
 
 }
