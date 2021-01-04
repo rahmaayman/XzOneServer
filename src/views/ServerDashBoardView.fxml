@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.effect.Light.Distant?>
+<?import javafx.scene.effect.Lighting?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="bp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="522.0" prefWidth="623.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DashBoardController">
+   <left>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <ToolBar blendMode="DARKEN" orientation="VERTICAL" prefHeight="358.0" prefWidth="74.0" VBox.vgrow="ALWAYS">
+              <items>
+                <Button fx:id="homeBtn" contentDisplay="TOP" mnemonicParsing="false" onAction="#home" opacity="0.63" prefHeight="60.0" prefWidth="65.0">
+                     <graphic>
+                        <ImageView fitHeight="39.0" fitWidth="43.0">
+                           <image>
+                              <Image url="@../assets/WhatsApp%20Image%202021-01-04%20at%204.34.54%20PM%20(1).jpeg" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="statsBtn" contentDisplay="TOP" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#stats" opacity="0.76" prefHeight="66.0" prefWidth="64.0">
+                     <graphic>
+                        <ImageView fitHeight="42.0" fitWidth="43.0">
+                           <image>
+                              <Image url="@../assets/WhatsApp%20Image%202021-01-04%20at%204.34.53%20PM.jpeg" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+              </items>
+               <effect>
+                  <Lighting bumpInput="$null">
+                     <light>
+                        <Light.Distant color="#94ebc4" />
+                     </light>
+                  </Lighting>
+               </effect>
+            </ToolBar>
+         </children>
+      </VBox>
+   </left>
+   <top>
+      <ToolBar prefHeight="46.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </top>
+   <center>
+      <VBox fx:id="home" alignment="CENTER" prefHeight="476.0" prefWidth="540.0" spacing="46.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="197.0" fitWidth="225.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../assets/WhatsApp%20Image%202021-01-04%20at%204.34.54%20PM.jpeg" />
+               </image>
+            </ImageView>
+            <Button fx:id="openServerBtn" contentDisplay="CENTER" mnemonicParsing="false" onAction="#openServer" style="-fx-background-color: transparent;">
+               <graphic>
+                  <ImageView fx:id="openServerImgView" fitHeight="112.0" fitWidth="92.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/WhatsApp%20Image%202021-01-04%20at%204.34.53%20PM%20(1).jpeg" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
