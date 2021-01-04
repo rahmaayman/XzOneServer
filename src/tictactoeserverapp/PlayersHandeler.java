@@ -35,7 +35,7 @@ public class PlayersHandeler implements Runnable {
     private String receivingPacket;
     private int status;
     ArrayList<String> message;
-    ArrayList<String> informatin;
+    ArrayList<String> information;
     String name;
     Socket clientSocket;
     public static Thread th;
@@ -43,7 +43,7 @@ public class PlayersHandeler implements Runnable {
 
     static Set<PlayersHandeler> playersSocket = new HashSet<PlayersHandeler>();
     static Set<Match> currentMatches = new HashSet<Match>();
-    
+
     PlayerDao playerDao;
     ArrayList<Player> pList;
     ArrayList<Player> apList;
@@ -70,20 +70,20 @@ public class PlayersHandeler implements Runnable {
             try {
 //                System.out.println("bbbb");
 //                System.out.println("vvvvv");
-                informatin = (ArrayList<String>) objectInputStream.readObject();
-                if (informatin.get(0).equals(Constants.WANT_TO_REGISTER)) {
-                    System.out.println(informatin.get(0) + "  " + informatin.get(1) + "   " + informatin.get(2));
+                information = (ArrayList<String>) objectInputStream.readObject();
+                if (information.get(0).equals(Constants.WANT_TO_REGISTER)) {
+                    System.out.println(information.get(0) + "  " + information.get(1) + "   " + information.get(2));
                     registration();
-                    name = informatin.get(1);
+                    name = information.get(1);
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
-                } else if (informatin.get(0).equals(Constants.WANT_TO_LOGIN)) {
-                    System.out.println(informatin.get(0) + "  " + informatin.get(1) + "   " + informatin.get(2));
+                } else if (information.get(0).equals(Constants.WANT_TO_LOGIN)) {
+                    System.out.println(information.get(0) + "  " + information.get(1) + "   " + information.get(2));
                     loginRequest();
-                    name = informatin.get(1);
+                    name = information.get(1);
                     sendMessageToPlayer(message);
                     pList = playerDao.selectAllPlayers(0);
-                } else if ((informatin.get(0).equals(Constants.GET_AVAILABLE_PLAYERS))) {
+                } else if ((information.get(0).equals(Constants.GET_AVAILABLE_PLAYERS))) {
                     message = new ArrayList<>();
                     message.add(Constants.AVAILABLE_PLAYERS);
                     apList = new ArrayList<Player>();
@@ -101,25 +101,32 @@ public class PlayersHandeler implements Runnable {
                     System.out.println("aP is send to client");
                     apList.clear();
                     System.out.println("aP " + apList);
-                } else if (informatin.get(0).equals(Constants.WANT_TO_PLAY)) {
-                    String opponentName = informatin.get(1);
+                } else if (information.get(0).equals(Constants.WANT_TO_PLAY)) {
+                    String opponentName = information.get(1);
                     String playerName = this.name;
 
                     sendMessageToOpponent(opponentName, playerName, Constants.WANT_TO_PLAY);
                     System.out.println("send request " + opponentName + " " + playerName);
-                } else if (informatin.get(0).equals(Constants.ACCEPT_PLAYING_REQUEST)) {
-                    String opponentName = informatin.get(2);
-                    String playerName = informatin.get(1);
+
+                } else if (information.get(0).equals(Constants.ACCEPT_PLAYING_REQUEST)) {
+                    String opponentName = information.get(2);
+                    String playerName = information.get(1);
                     createMatch(playerName, opponentName);
                     playerDao.UpdatePlayerStatus(playerName, 2);
                     playerDao.UpdatePlayerStatus(opponentName, 2);
                     sendMessageToOpponent(opponentName, playerName, Constants.ACCEPT_PLAYING_REQUEST);
                     System.out.println("send accept " + opponentName + " " + playerName);
-                } else if (informatin.get(0).equals(Constants.REJECT_PLAYING_REQUEST)) {
-                    String opponentName = informatin.get(2);
-                    String playerName = informatin.get(1);
+
+                } else if (information.get(0).equals(Constants.REJECT_PLAYING_REQUEST)) {
+                    String opponentName = information.get(2);
+                    String playerName = information.get(1);
                     sendMessageToOpponent(opponentName, playerName, Constants.REJECT_PLAYING_REQUEST);
                     System.out.println("send reject " + opponentName + " " + playerName);
+
+                } else if (information.get(0).equals(Constants.OPEN_GAME_INFORM)) {
+
+                    sendOpenInformToOponnent(information.get(1), information.get(2));
+
                 }
 
             } catch (EOFException s) {
@@ -155,19 +162,23 @@ public class PlayersHandeler implements Runnable {
 
     private void registration() {
         message = new ArrayList<String>();
-        message.add(Constants.REGISTER);
+
         boolean userNameUsed = false;
         for (int i = 0; i < pList.size(); i++) {
-            if (informatin.get(1).equals(pList.get(i).getName())) {
+            if (information.get(1).equals(pList.get(i).getName())) {
                 userNameUsed = true;
                 message.add(Constants.DUPPLICATED_NAME);
                 break;
             }
         }
         if (!userNameUsed) {
-            Player p = new Player(informatin.get(1), informatin.get(2), 0, 1);
+            Player p = new Player(information.get(1), information.get(2), 0, 1);
             playerDao.insertPlayer(p);
             message.add(Constants.YOU_ARA_REGISTER);
+            int score = playerDao.getScore(name);
+            message.add(Constants.REGISTER);
+            message.add(name);
+            message.add(Integer.toString(score));
         }
     }
 
@@ -214,8 +225,11 @@ public class PlayersHandeler implements Runnable {
         System.out.println("enter login");
         message = new ArrayList<String>();
         message.add(Constants.LOGIN);
+        int score = playerDao.getScore(name);
         if (isLogged()) {
             message.add(Constants.YOU_LOGED_IN);
+            message.add(name);
+            message.add(Integer.toString(score));
         } else {
             message.add(Constants.LOGIN_FAILURE);
         }
@@ -227,7 +241,7 @@ public class PlayersHandeler implements Runnable {
         boolean isloged = false;
         pList = playerDao.selectAllPlayers(0);
         for (int i = 0; i < pList.size(); i++) {
-            if (pList.get(i).getName().equals(informatin.get(1)) && pList.get(i).getPassword().equals(informatin.get(2))) {
+            if (pList.get(i).getName().equals(information.get(1)) && pList.get(i).getPassword().equals(information.get(2))) {
                 isloged = true;
                 playerDao.UpdatePlayerStatus(pList.get(i).getName(), 1);
                 break;
@@ -235,21 +249,41 @@ public class PlayersHandeler implements Runnable {
         }
         return isloged;
     }
-    
-    private void createMatch(String playerName, String opponentName){
+
+    private void createMatch(String playerName, String opponentName) {
         PlayersHandeler playerOne = null;
         PlayersHandeler playerTwo = null;
-        for(PlayersHandeler player : playersSocket){
-            if(player.name.equals(playerName))
+        for (PlayersHandeler player : playersSocket) {
+            if (player.name.equals(playerName)) {
                 playerOne = player;
-            else if(player.name.equals(opponentName))
+            } else if (player.name.equals(opponentName)) {
                 playerTwo = player;
-            
+            }
+
         }
-        System.out.println("player1 "+playerOne.name);
-        System.out.println("player2 "+playerTwo.name);
+        System.out.println("player1 " + playerOne.name);
+        System.out.println("player2 " + playerTwo.name);
         Match match = new Match(playerOne, playerTwo);
         currentMatches.add(match);
+    }
+
+    private void sendOpenInformToOponnent(String playerOneName, String playerTwoName) {
+        ArrayList<String> openGamePacket = new ArrayList<String>();
+        openGamePacket.add(Constants.OPEN_GAME_INFORM);
+        openGamePacket.add(playerTwoName);
+        PlayersHandeler informedPlayer = null;
+        for (PlayersHandeler player : playersSocket) {
+            if (player.name.equals(playerOneName)) {
+                informedPlayer = player;
+            }
+        }
+
+        try {
+            informedPlayer.objectOutputStream.writeObject(openGamePacket);
+        } catch (IOException ex) {
+            Logger.getLogger(PlayersHandeler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

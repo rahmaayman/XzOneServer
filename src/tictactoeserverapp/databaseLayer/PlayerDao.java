@@ -74,6 +74,30 @@ public class PlayerDao {
             Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public int getScore(String userName){
+        ResultSet rs = null;
+        int score = -1;
+        try {
+            PreparedStatement ps =con.prepareStatement("SELECT SCORE FROM PLAYER WHERE NAME=?");
+            ps.setString(1, userName);
+            rs = ps.executeQuery();
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        try {
+            if(rs.next()){
+                System.out.println(" rs has next");
+                score =  rs.getInt("SCORE");
+            }
+                
+        } catch (SQLException ex) {
+            Logger.getLogger(PlayerDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return score;
+    }
 
     public ArrayList<Player> selectAllPlayers() {
         try {

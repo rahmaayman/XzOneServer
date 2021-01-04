@@ -23,4 +23,6 @@ public class Constants {
     public static final String WANT_TO_PLAY="want to play request";
     public static final String ACCEPT_PLAYING_REQUEST="you request accepted";
     public static final String REJECT_PLAYING_REQUEST="you request rejected";
+    public static final String OPEN_GAME_INFORM="you are ready for playing";
+    
 }
